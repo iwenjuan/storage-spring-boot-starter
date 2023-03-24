@@ -146,7 +146,7 @@ public abstract class AbstractStorageService implements IStorageService {
         if (fileSize > maxSize) {
             throw new FileUploadException(StorageErrorCode.FILE_IS_TOO_LARGE);
         }
-        return false;
+        return true;
     }
 
     @Override
