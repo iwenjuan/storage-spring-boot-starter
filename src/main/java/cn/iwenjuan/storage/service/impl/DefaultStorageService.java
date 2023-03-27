@@ -3,6 +3,7 @@ package cn.iwenjuan.storage.service.impl;
 import cn.iwenjuan.storage.domain.UploadResponse;
 import cn.iwenjuan.storage.exception.FileDownloadException;
 import cn.iwenjuan.storage.exception.FileUploadException;
+import cn.iwenjuan.storage.exception.StorageException;
 import cn.iwenjuan.storage.exception.enums.StorageErrorCode;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,6 +29,7 @@ public class DefaultStorageService extends AbstractStorageService {
     @Override
     public void delete(String objectName) {
         printErrorConfigLog();
+        throw new StorageException(StorageErrorCode.CONFIG_ERROR);
     }
 
     @Override

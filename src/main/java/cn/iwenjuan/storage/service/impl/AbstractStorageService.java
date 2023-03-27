@@ -5,6 +5,7 @@ import cn.iwenjuan.storage.context.SpringApplicationContext;
 import cn.iwenjuan.storage.domain.UploadResponse;
 import cn.iwenjuan.storage.exception.FileDownloadException;
 import cn.iwenjuan.storage.exception.FileUploadException;
+import cn.iwenjuan.storage.exception.StorageException;
 import cn.iwenjuan.storage.exception.enums.StorageErrorCode;
 import cn.iwenjuan.storage.service.IStorageService;
 import cn.iwenjuan.storage.utils.IdUtils;
@@ -27,6 +28,10 @@ public abstract class AbstractStorageService implements IStorageService {
     protected StorageConfig getStorageConfig() {
         if (storageConfig == null) {
             storageConfig = SpringApplicationContext.getBean(StorageConfig.class);
+        }
+        if (storageConfig == null) {
+            log.error("未检测到存储平台，请检查配置：{}", storageConfig);
+            throw new StorageException(StorageErrorCode.CONFIG_ERROR);
         }
         return storageConfig;
     }
