@@ -35,14 +35,15 @@ public class AliyunStorageService extends AbstractStorageService {
         // 判断文件大小
         exceedMaxSize(fileSize);
         try {
-            String fileUrl = getFileUrl(originalFilename, md5, aliyunOssProperties.getPath());
+            String path = aliyunOssProperties.getPath();
+            String fileUrl = getFileUrl(originalFilename, md5, path);
             ossClient.putObject(aliyunOssProperties.getBucketName(), fileUrl, inputStream);
             UploadResponse response = new UploadResponse()
                     .setPlatform(getPlatformName())
                     .setFileName(originalFilename)
                     .setFileSize(fileSize)
                     .setFileUrl(fileUrl)
-                    .setPath("")
+                    .setPath(path)
                     .setMd5(md5)
                     .setUploadTime(DateUtils.now());
             return response;

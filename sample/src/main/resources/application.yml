@@ -11,7 +11,7 @@ spring:
     # 不允许上传的文件格式
     deny: ".sh,.java,.class,.py,.php"
     # 存储平台
-    platform: aliyun
+    platform: qiniu
     # 本地存储配置
     local:
       # 本地存储路径
@@ -27,7 +27,7 @@ spring:
       # minio存储桶名
       bucketName: demo
       # minio存储桶下的路径
-      path: /test
+      path: /files
     # fastdfs配置
     fastdfs:
       # 读取时间
@@ -49,3 +49,15 @@ spring:
       bucket-name: lidan-oss-demo
       # 存储桶下的路径
       path: /files
+    # 七牛云配置
+    qiniu:
+      # accessKey
+      access-key: Hhd3U4T3KHJXFyiJetAgdKsQ9MWkIomPn8knyJkq
+      # secretKey
+      secret-key: rJAr562kVN487MwcyVpls6Jdpw_jAc6JGaL_p69i
+      # 存储桶名
+      bucket-name: lidan-oss-demo
+      # 存储桶下的路径
+      path: /files
+      # 访问七牛云的域名
+      domain: http://rs651bzo2.hd-bkt.clouddn.com

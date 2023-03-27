@@ -2,17 +2,14 @@ package cn.iwenjuan.storage.config;
 
 import cn.iwenjuan.storage.context.SpringApplicationContext;
 import cn.iwenjuan.storage.service.IStorageService;
-import cn.iwenjuan.storage.service.impl.AliyunStorageService;
-import cn.iwenjuan.storage.service.impl.FastDfsStorageService;
-import cn.iwenjuan.storage.service.impl.LocalStorageService;
-import cn.iwenjuan.storage.service.impl.MinioStorageService;
+import cn.iwenjuan.storage.service.impl.*;
 import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSClientBuilder;
 import com.github.tobato.fastdfs.domain.conn.PooledConnectionFactory;
 import com.github.tobato.fastdfs.domain.conn.TrackerConnectionManager;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
+import com.qiniu.util.Auth;
 import io.minio.MinioClient;
 import lombok.Data;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -66,6 +63,10 @@ public class StorageConfig {
      * 阿里云OSS配置
      */
     private AliyunOssProperties aliyun = new AliyunOssProperties();
+    /**
+     * 七牛云OSS配置
+     */
+    private QiniuOssProperties qiniu;
 
     @Data
     public static class LocalProperties {
@@ -180,12 +181,57 @@ public class StorageConfig {
         }
     }
 
+    @Data
+    public static class QiniuOssProperties {
+        /**
+         * OSS 节点地址
+         */
+        private String endpoint;
+        /**
+         * OSS 节点accessKey
+         */
+        private String accessKey;
+        /**
+         * OSS 节点secretKey
+         */
+        private String secretKey;
+        /**
+         * 存储桶名
+         */
+        private String bucketName;
+        /**
+         * 存储桶下的路径
+         */
+        private String path;
+        /**
+         * 访问七牛云的域名
+         */
+        public String domain;
+
+        public String getPath() {
+            if (path == null) {
+                path = "";
+            }
+            if (!path.endsWith(SLASH)) {
+                path = path.concat(SLASH);
+            }
+            if (path.startsWith(SLASH)) {
+                path = path.substring(1);
+            }
+            if (SLASH.equals(path)) {
+                path = "";
+            }
+            return path;
+        }
+    }
+
     public enum PlatformType {
 
         local,
         minio,
         fastdfs,
-        aliyun;
+        aliyun,
+        qiniu;
     }
 
     @Bean
@@ -218,6 +264,9 @@ public class StorageConfig {
                 configuration.setSupportCname(false);
                 OSS ossClient = new OSSClientBuilder().build(aliyun.getEndpoint(), aliyun.getAccessKey(), aliyun.getSecretKey(), configuration);
                 return new AliyunStorageService(aliyun, ossClient);
+            case qiniu:
+                Auth auth = Auth.create(qiniu.getAccessKey(), qiniu.getSecretKey());
+                return new QiniuStorageService(qiniu, auth);
             default:
                 throw new IllegalStateException("未找到对应的存储平台");
         }

@@ -22,6 +22,7 @@
         <okhttp.version>4.9.2</okhttp.version>
         <fastdfs.client.version>1.27.2</fastdfs.client.version>
         <aliyun.oss.version>3.15.1</aliyun.oss.version>
+        <qiniu.version>7.7.0</qiniu.version>
     </properties>
 
     <dependencies>
@@ -72,6 +73,14 @@
             <groupId>com.github.tobato</groupId>
             <artifactId>fastdfs-client</artifactId>
             <version>${fastdfs.client.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- 七牛云 -->
+        <dependency>
+            <groupId>com.qiniu</groupId>
+            <artifactId>qiniu-java-sdk</artifactId>
+            <version>${qiniu.version}</version>
             <scope>provided</scope>
         </dependency>
 
