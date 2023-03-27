@@ -1,0 +1,51 @@
+server:
+  port: 9100
+
+spring:
+  # 文件上传配置
+  storage:
+    # 允许上传文件最大大小，单位kb，默认10M
+    maxSize: 10485760
+    # 允许上传的文件格式，默认允许所有
+    allowed: "*"
+    # 不允许上传的文件格式
+    deny: ".sh,.java,.class,.py,.php"
+    # 存储平台
+    platform: aliyun
+    # 本地存储配置
+    local:
+      # 本地存储路径
+      path: /data/files
+    # minio配置
+    minio:
+      # minio地址
+      endpoint: http://minio.dev:9000
+      # minio账号
+      accessKey: minio
+      # minio秘钥
+      secretKey: nji9VFR$
+      # minio存储桶名
+      bucketName: demo
+      # minio存储桶下的路径
+      path: /test
+    # fastdfs配置
+    fastdfs:
+      # 读取时间
+      so-timeout: 1000
+      # 连接超时时间
+      connect-timeout: 200
+      # tracker服务配置地址列表
+      tracker-list:
+        - fastdfs.dev:22122
+    # 阿里云OSS配置
+    aliyun:
+      # OSS节点地址
+      endpoint: https://oss-cn-beijing.aliyuncs.com
+      # accessKey
+      access-key: LTAI5tGz4gHyVMt1GS8nH4Hc
+      # secretKey
+      secret-key: pp9ktP5jwStpREvfCnY7oErmUsXFIO
+      # 存储桶名
+      bucket-name: lidan-oss-demo
+      # 存储桶下的路径
+      path: /files
