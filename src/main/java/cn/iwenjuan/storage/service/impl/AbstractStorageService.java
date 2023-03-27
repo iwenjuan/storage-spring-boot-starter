@@ -184,6 +184,9 @@ public abstract class AbstractStorageService implements IStorageService {
      * @return
      */
     protected String getFileUrl(String originalFilename, String md5, String path) {
+        if (path == null) {
+            path = "";
+        }
         String suffix = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
         String fileName = StringUtils.isBlank(md5) ? IdUtils.randomUUID().concat(".").concat(suffix) : md5.concat(".").concat(suffix);
         return path.concat(fileName);

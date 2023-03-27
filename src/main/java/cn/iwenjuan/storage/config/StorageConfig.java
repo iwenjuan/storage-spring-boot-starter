@@ -2,9 +2,14 @@ package cn.iwenjuan.storage.config;
 
 import cn.iwenjuan.storage.context.SpringApplicationContext;
 import cn.iwenjuan.storage.service.IStorageService;
+import cn.iwenjuan.storage.service.impl.AliyunStorageService;
 import cn.iwenjuan.storage.service.impl.FastDfsStorageService;
 import cn.iwenjuan.storage.service.impl.LocalStorageService;
 import cn.iwenjuan.storage.service.impl.MinioStorageService;
+import com.aliyun.oss.ClientBuilderConfiguration;
+import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClient;
+import com.aliyun.oss.OSSClientBuilder;
 import com.github.tobato.fastdfs.domain.conn.PooledConnectionFactory;
 import com.github.tobato.fastdfs.domain.conn.TrackerConnectionManager;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
@@ -57,6 +62,10 @@ public class StorageConfig {
      * fastdfs配置
      */
     private FastDfsProperties fastdfs = new FastDfsProperties();
+    /**
+     * 阿里云OSS配置
+     */
+    private AliyunOssProperties aliyun = new AliyunOssProperties();
 
     @Data
     public static class LocalProperties {
@@ -130,11 +139,53 @@ public class StorageConfig {
         private List<String> trackerList = new ArrayList<>();
     }
 
+    @Data
+    public static class AliyunOssProperties {
+
+        /**
+         * OSS 节点地址
+         */
+        private String endpoint;
+        /**
+         * OSS 节点accessKey
+         */
+        private String accessKey;
+        /**
+         * OSS 节点secretKey
+         */
+        private String secretKey;
+        /**
+         * 存储桶名
+         */
+        private String bucketName;
+        /**
+         * 存储桶下的路径
+         */
+        private String path;
+
+        public String getPath() {
+            if (path == null) {
+                path = "";
+            }
+            if (!path.endsWith(SLASH)) {
+                path = path.concat(SLASH);
+            }
+            if (path.startsWith(SLASH)) {
+                path = path.substring(1);
+            }
+            if (SLASH.equals(path)) {
+                path = "";
+            }
+            return path;
+        }
+    }
+
     public enum PlatformType {
 
         local,
         minio,
-        fastdfs;
+        fastdfs,
+        aliyun;
     }
 
     @Bean
@@ -161,6 +212,12 @@ public class StorageConfig {
                 trackerConnectionManager.initTracker();
                 FastFileStorageClient fastFileStorageClient = SpringApplicationContext.getBean(FastFileStorageClient.class);
                 return new FastDfsStorageService(fastFileStorageClient);
+            case aliyun:
+                ClientBuilderConfiguration configuration = new ClientBuilderConfiguration();
+                // 私有云要关闭CNAME
+                configuration.setSupportCname(false);
+                OSS ossClient = new OSSClientBuilder().build(aliyun.getEndpoint(), aliyun.getAccessKey(), aliyun.getSecretKey(), configuration);
+                return new AliyunStorageService(aliyun, ossClient);
             default:
                 throw new IllegalStateException("未找到对应的存储平台");
         }
