@@ -16,7 +16,9 @@ public enum StorageErrorCode {
 
     FILE_NOT_EXIST(107005, "文件不存在"),
 
-    FILE_DOWNLOAD_ERROR(107005, "文件下载异常");
+    FILE_DOWNLOAD_ERROR(107006, "文件下载异常"),
+
+    CONFIG_ERROR(107007, "配置异常");
 
     private int code;
 

@@ -22,7 +22,7 @@ import java.io.*;
 @Slf4j
 public abstract class AbstractStorageService implements IStorageService {
 
-    protected StorageConfig storageConfig;
+    private StorageConfig storageConfig;
 
     protected StorageConfig getStorageConfig() {
         if (storageConfig == null) {
@@ -197,7 +197,37 @@ public abstract class AbstractStorageService implements IStorageService {
      * @return
      */
     protected String getPlatformName() {
-        return storageConfig.getPlatform().name();
+        return getStorageConfig().getPlatform().name();
+    }
+
+    /**
+     * 打印错误日志
+     */
+    protected void printErrorConfigLog() {
+        StorageConfig storageConfig = getStorageConfig();
+        StorageConfig.PlatformType platform = storageConfig.getPlatform();
+        if (platform == null) {
+            log.error("未检测到存储平台，请检查配置：{}", storageConfig);
+        } else {
+            Object properties = storageConfig.getLocal();
+            switch (platform) {
+                case minio:
+                    properties = storageConfig.getMinio();
+                    break;
+                case fastdfs:
+                    properties = storageConfig.getFastdfs();
+                    break;
+                case aliyun:
+                    properties = storageConfig.getAliyun();
+                    break;
+                case qiniu:
+                    properties = storageConfig.getQiniu();
+                    break;
+                default:
+                    break;
+            }
+            log.error("检测到【{}】存储平台，但未配置相关配置或相关配置不全，请检查配置：{}", platform, properties);
+        }
     }
 
     /**

@@ -6,6 +6,7 @@ import cn.iwenjuan.storage.exception.FileDownloadException;
 import cn.iwenjuan.storage.exception.enums.StorageErrorCode;
 import cn.iwenjuan.storage.utils.DateUtils;
 import cn.iwenjuan.storage.utils.HttpUtils;
+import cn.iwenjuan.storage.utils.StringUtils;
 import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
@@ -117,6 +118,10 @@ public class QiniuStorageService extends AbstractStorageService {
 
     @Override
     public void download(OutputStream outputStream, String objectName) {
+        if (StringUtils.isBlank(qiniuOssProperties.getDomain())) {
+            log.error("检测到七牛云OSS存储平台，但未配置七牛云访问域名，无法下载文件：{}", qiniuOssProperties);
+            throw new FileDownloadException(StorageErrorCode.CONFIG_ERROR);
+        }
         try {
             String privateDownloadUrl = auth.privateDownloadUrl(qiniuOssProperties.getDomain().concat(objectName));
             byte[] bytes = HttpUtils.getWithHeaders(privateDownloadUrl, null, null, byte[].class);

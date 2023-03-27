@@ -3,6 +3,8 @@ package cn.iwenjuan.storage.config;
 import cn.iwenjuan.storage.context.SpringApplicationContext;
 import cn.iwenjuan.storage.service.IStorageService;
 import cn.iwenjuan.storage.service.impl.*;
+import cn.iwenjuan.storage.utils.ObjectUtils;
+import cn.iwenjuan.storage.utils.StringUtils;
 import com.aliyun.oss.ClientBuilderConfiguration;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
@@ -12,6 +14,7 @@ import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import com.qiniu.util.Auth;
 import io.minio.MinioClient;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +30,7 @@ import java.util.List;
 @Data
 @Configuration
 @ConfigurationProperties("spring.storage")
+@Slf4j
 public class StorageConfig {
 
     public static final String SLASH = "/";
@@ -54,15 +58,15 @@ public class StorageConfig {
     /**
      * minio配置
      */
-    private MinioProperties minio = new MinioProperties();
+    private MinioProperties minio;
     /**
      * fastdfs配置
      */
-    private FastDfsProperties fastdfs = new FastDfsProperties();
+    private FastDfsProperties fastdfs;
     /**
      * 阿里云OSS配置
      */
-    private AliyunOssProperties aliyun = new AliyunOssProperties();
+    private AliyunOssProperties aliyun;
     /**
      * 七牛云OSS配置
      */
@@ -184,10 +188,6 @@ public class StorageConfig {
     @Data
     public static class QiniuOssProperties {
         /**
-         * OSS 节点地址
-         */
-        private String endpoint;
-        /**
          * OSS 节点accessKey
          */
         private String accessKey;
@@ -241,11 +241,17 @@ public class StorageConfig {
             case local:
                 return new LocalStorageService();
             case minio:
+                if (minio == null || !StringUtils.isNotBlank(minio.getEndpoint(), minio.getAccessKey(), minio.getSecretKey(), minio.getBucketName())) {
+                    return new DefaultStorageService();
+                }
                 MinioClient minioClient = MinioClient.builder().endpoint(minio.getEndpoint())
                         .credentials(minio.getAccessKey(), minio.getSecretKey())
                         .build();
                 return new MinioStorageService(minioClient);
             case fastdfs:
+                if (fastdfs == null || ObjectUtils.isEmpty(fastdfs.getTrackerList())) {
+                    return new DefaultStorageService();
+                }
                 PooledConnectionFactory pooledConnectionFactory = SpringApplicationContext.getBean(PooledConnectionFactory.class);
                 pooledConnectionFactory.setSoTimeout(fastdfs.getSoTimeout());
                 pooledConnectionFactory.setConnectTimeout(fastdfs.getConnectTimeout());
@@ -259,16 +265,25 @@ public class StorageConfig {
                 FastFileStorageClient fastFileStorageClient = SpringApplicationContext.getBean(FastFileStorageClient.class);
                 return new FastDfsStorageService(fastFileStorageClient);
             case aliyun:
+                if (aliyun == null || !StringUtils.isNotBlank(aliyun.getEndpoint(), aliyun.getAccessKey(), aliyun.getSecretKey(), aliyun.getBucketName())) {
+                    return new DefaultStorageService();
+                }
                 ClientBuilderConfiguration configuration = new ClientBuilderConfiguration();
                 // 私有云要关闭CNAME
                 configuration.setSupportCname(false);
                 OSS ossClient = new OSSClientBuilder().build(aliyun.getEndpoint(), aliyun.getAccessKey(), aliyun.getSecretKey(), configuration);
                 return new AliyunStorageService(aliyun, ossClient);
             case qiniu:
+                if (qiniu == null || !StringUtils.isNotBlank(qiniu.getAccessKey(), qiniu.getSecretKey(), qiniu.getBucketName())) {
+                    return new DefaultStorageService();
+                }
+                if (StringUtils.isBlank(qiniu.getDomain())) {
+                    log.error("检测到七牛云OSS存储平台，但未配置七牛云访问域名，将无法正常下载文件：{}", qiniu);
+                }
                 Auth auth = Auth.create(qiniu.getAccessKey(), qiniu.getSecretKey());
                 return new QiniuStorageService(qiniu, auth);
             default:
-                throw new IllegalStateException("未找到对应的存储平台");
+                return new DefaultStorageService();
         }
     }
 }
