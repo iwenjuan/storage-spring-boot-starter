@@ -1,6 +1,6 @@
 package cn.iwenjuan.storage.service.impl;
 
-import cn.iwenjuan.storage.config.StorageConfig;
+import cn.iwenjuan.storage.config.StorageProperties;
 import cn.iwenjuan.storage.domain.UploadResponse;
 import cn.iwenjuan.storage.exception.FileDownloadException;
 import cn.iwenjuan.storage.exception.enums.StorageErrorCode;
@@ -18,12 +18,13 @@ import java.io.InputStream;
 @Slf4j
 public class AliyunStorageService extends AbstractStorageService {
 
-    private StorageConfig.AliyunOssProperties aliyunOssProperties;
+    private StorageProperties.AliyunOssProperties aliyunOssProperties;
 
     private OSS ossClient;
 
-    public AliyunStorageService(StorageConfig.AliyunOssProperties aliyunOssProperties, OSS ossClient) {
-        this.aliyunOssProperties = aliyunOssProperties;
+    public AliyunStorageService(StorageProperties storageProperties, OSS ossClient) {
+        super(storageProperties);
+        this.aliyunOssProperties = storageProperties.getAliyun();
         this.ossClient = ossClient;
     }
 

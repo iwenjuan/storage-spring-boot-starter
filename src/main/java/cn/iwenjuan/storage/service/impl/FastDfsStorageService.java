@@ -1,5 +1,6 @@
 package cn.iwenjuan.storage.service.impl;
 
+import cn.iwenjuan.storage.config.StorageProperties;
 import cn.iwenjuan.storage.domain.UploadResponse;
 import cn.iwenjuan.storage.exception.FileUploadException;
 import cn.iwenjuan.storage.exception.enums.StorageErrorCode;
@@ -21,7 +22,8 @@ public class FastDfsStorageService extends AbstractStorageService {
 
     private FastFileStorageClient fastFileStorageClient;
 
-    public FastDfsStorageService(FastFileStorageClient fastFileStorageClient) {
+    public FastDfsStorageService(StorageProperties storageProperties, FastFileStorageClient fastFileStorageClient) {
+        super(storageProperties);
         this.fastFileStorageClient = fastFileStorageClient;
     }
 

@@ -1,6 +1,6 @@
 package cn.iwenjuan.storage.service.impl;
 
-import cn.iwenjuan.storage.config.StorageConfig;
+import cn.iwenjuan.storage.config.StorageProperties;
 import cn.iwenjuan.storage.domain.UploadResponse;
 import cn.iwenjuan.storage.exception.FileDownloadException;
 import cn.iwenjuan.storage.exception.enums.StorageErrorCode;
@@ -27,7 +27,7 @@ import java.io.OutputStream;
 @Slf4j
 public class QiniuStorageService extends AbstractStorageService {
 
-    private StorageConfig.QiniuOssProperties qiniuOssProperties;
+    private StorageProperties.QiniuOssProperties qiniuOssProperties;
 
     private Auth auth;
 
@@ -35,8 +35,9 @@ public class QiniuStorageService extends AbstractStorageService {
 
     private BucketManager bucketManager;
 
-    public QiniuStorageService(StorageConfig.QiniuOssProperties qiniuOssProperties, Auth auth) {
-        this.qiniuOssProperties = qiniuOssProperties;
+    public QiniuStorageService(StorageProperties storageProperties, Auth auth) {
+        super(storageProperties);
+        this.qiniuOssProperties = storageProperties.getQiniu();
         this.auth = auth;
         getUploadManager();
         getBucketManager();

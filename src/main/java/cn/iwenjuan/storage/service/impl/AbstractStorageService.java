@@ -1,11 +1,9 @@
 package cn.iwenjuan.storage.service.impl;
 
-import cn.iwenjuan.storage.config.StorageConfig;
-import cn.iwenjuan.storage.context.SpringApplicationContext;
+import cn.iwenjuan.storage.config.StorageProperties;
 import cn.iwenjuan.storage.domain.UploadResponse;
 import cn.iwenjuan.storage.exception.FileDownloadException;
 import cn.iwenjuan.storage.exception.FileUploadException;
-import cn.iwenjuan.storage.exception.StorageException;
 import cn.iwenjuan.storage.exception.enums.StorageErrorCode;
 import cn.iwenjuan.storage.service.IStorageService;
 import cn.iwenjuan.storage.utils.IdUtils;
@@ -23,17 +21,10 @@ import java.io.*;
 @Slf4j
 public abstract class AbstractStorageService implements IStorageService {
 
-    private StorageConfig storageConfig;
+    private StorageProperties storageProperties;
 
-    protected StorageConfig getStorageConfig() {
-        if (storageConfig == null) {
-            storageConfig = SpringApplicationContext.getBean(StorageConfig.class);
-        }
-        if (storageConfig == null) {
-            log.error("未检测到存储平台，请检查配置：{}", storageConfig);
-            throw new StorageException(StorageErrorCode.CONFIG_ERROR);
-        }
-        return storageConfig;
+    public AbstractStorageService(StorageProperties storageProperties) {
+        this.storageProperties = storageProperties;
     }
 
     @Override
@@ -117,7 +108,7 @@ public abstract class AbstractStorageService implements IStorageService {
         if (StringUtils.isBlank(originalFilename)) {
             throw new FileUploadException(StorageErrorCode.FILE_TYPE_IS_NOT_ALLOWED);
         }
-        String deny = getStorageConfig().getDeny();
+        String deny = storageProperties.getDeny();
         if (StringUtils.isBlank(deny)) {
             deny = "";
         }
@@ -130,7 +121,7 @@ public abstract class AbstractStorageService implements IStorageService {
         if (deny.contains(ext)) {
             throw new FileUploadException(StorageErrorCode.FILE_TYPE_IS_NOT_ALLOWED);
         }
-        String allowed = getStorageConfig().getAllowed();
+        String allowed = storageProperties.getAllowed();
         if (StringUtils.isBlank(allowed)) {
             allowed = "";
         }
@@ -149,7 +140,7 @@ public abstract class AbstractStorageService implements IStorageService {
         if (fileSize <= 0) {
             throw new FileUploadException(StorageErrorCode.FILE_IS_EMPTY);
         }
-        long maxSize = getStorageConfig().getMaxSize();
+        long maxSize = storageProperties.getMaxSize();
         if (maxSize < 0) {
             // 配置的最大限制小于0，则不作限制
             return true;
@@ -208,31 +199,30 @@ public abstract class AbstractStorageService implements IStorageService {
      * @return
      */
     protected String getPlatformName() {
-        return getStorageConfig().getPlatform().name();
+        return storageProperties.getPlatform().name();
     }
 
     /**
      * 打印错误日志
      */
     protected void printErrorConfigLog() {
-        StorageConfig storageConfig = getStorageConfig();
-        StorageConfig.PlatformType platform = storageConfig.getPlatform();
+        StorageProperties.PlatformType platform = storageProperties.getPlatform();
         if (platform == null) {
-            log.error("未检测到存储平台，请检查配置：{}", storageConfig);
+            log.error("未检测到存储平台，请检查配置：{}", storageProperties);
         } else {
-            Object properties = storageConfig.getLocal();
+            Object properties = storageProperties.getLocal();
             switch (platform) {
                 case minio:
-                    properties = storageConfig.getMinio();
+                    properties = storageProperties.getMinio();
                     break;
                 case fastdfs:
-                    properties = storageConfig.getFastdfs();
+                    properties = storageProperties.getFastdfs();
                     break;
                 case aliyun:
-                    properties = storageConfig.getAliyun();
+                    properties = storageProperties.getAliyun();
                     break;
                 case qiniu:
-                    properties = storageConfig.getQiniu();
+                    properties = storageProperties.getQiniu();
                     break;
                 default:
                     break;

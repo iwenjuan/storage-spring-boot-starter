@@ -1,5 +1,6 @@
 package cn.iwenjuan.storage.service.impl;
 
+import cn.iwenjuan.storage.config.StorageProperties;
 import cn.iwenjuan.storage.domain.UploadResponse;
 import cn.iwenjuan.storage.exception.FileDownloadException;
 import cn.iwenjuan.storage.exception.FileUploadException;
@@ -16,7 +17,8 @@ import java.io.InputStream;
 @Slf4j
 public class DefaultStorageService extends AbstractStorageService {
 
-    public DefaultStorageService() {
+    public DefaultStorageService(StorageProperties storageProperties) {
+        super(storageProperties);
         printErrorConfigLog();
     }
 

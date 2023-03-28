@@ -1,6 +1,6 @@
 package cn.iwenjuan.storage.service.impl;
 
-import cn.iwenjuan.storage.config.StorageConfig;
+import cn.iwenjuan.storage.config.StorageProperties;
 import cn.iwenjuan.storage.domain.UploadResponse;
 import cn.iwenjuan.storage.exception.FileDownloadException;
 import cn.iwenjuan.storage.exception.enums.StorageErrorCode;
@@ -17,10 +17,11 @@ import java.io.*;
 @Slf4j
 public class LocalStorageService extends AbstractStorageService {
 
-    private StorageConfig.LocalProperties localProperties;
+    private StorageProperties.LocalProperties localProperties;
 
-    public LocalStorageService() {
-        this.localProperties = getStorageConfig().getLocal();
+    public LocalStorageService(StorageProperties storageProperties) {
+        super(storageProperties);
+        this.localProperties = storageProperties.getLocal();
     }
 
     @Override

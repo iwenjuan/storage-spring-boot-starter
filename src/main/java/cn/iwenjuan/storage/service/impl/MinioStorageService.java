@@ -1,6 +1,6 @@
 package cn.iwenjuan.storage.service.impl;
 
-import cn.iwenjuan.storage.config.StorageConfig;
+import cn.iwenjuan.storage.config.StorageProperties;
 import cn.iwenjuan.storage.domain.UploadResponse;
 import cn.iwenjuan.storage.exception.FileDownloadException;
 import cn.iwenjuan.storage.exception.enums.StorageErrorCode;
@@ -20,11 +20,12 @@ public class MinioStorageService extends AbstractStorageService {
 
     private MinioClient minioClient;
 
-    private StorageConfig.MinioProperties minioProperties;
+    private StorageProperties.MinioProperties minioProperties;
 
-    public MinioStorageService(MinioClient minioClient) {
+    public MinioStorageService(StorageProperties storageProperties, MinioClient minioClient) {
+        super(storageProperties);
         this.minioClient = minioClient;
-        this.minioProperties = getStorageConfig().getMinio();
+        this.minioProperties = storageProperties.getMinio();
     }
 
     @Override
