@@ -11,7 +11,7 @@ spring:
     # 不允许上传的文件格式
     deny: ".sh,.java,.class,.py,.php"
     # 存储平台
-    platform: qiniu
+    platform: local
     # 本地存储配置
     local:
       # 本地存储路径
