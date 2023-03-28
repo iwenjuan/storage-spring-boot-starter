@@ -78,20 +78,11 @@ public class QiniuStorageService extends AbstractStorageService {
     }
 
     @Override
-    public UploadResponse upload(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
-        // 判断文件是否允许上传
-        allowedToUpload(originalFilename);
-        // 判断文件大小
-        exceedMaxSize(fileSize);
+    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
 
         try {
             String path = qiniuOssProperties.getPath();
             String fileUrl = getFileUrl(originalFilename, md5, path);
-
-            // 生成上传凭证，然后准备上传
-            String uploadToken = auth.uploadToken(qiniuOssProperties.getBucketName(), fileUrl);
-            // 上传文件
-            getUploadManager().put(inputStream, fileUrl, uploadToken, null, null);
             UploadResponse uploadResponse = new UploadResponse()
                     .setPlatform(getPlatformName())
                     .setFileName(originalFilename)
@@ -100,6 +91,21 @@ public class QiniuStorageService extends AbstractStorageService {
                     .setPath(path)
                     .setMd5(md5)
                     .setUploadTime(DateUtils.now());
+
+            try {
+                String privateDownloadUrl = auth.privateDownloadUrl(qiniuOssProperties.getDomain().concat(fileUrl));
+                if (StringUtils.isNotBlank(privateDownloadUrl)) {
+                    return uploadResponse;
+                }
+            } catch (Exception e) {
+
+            }
+
+            // 生成上传凭证，然后准备上传
+            String uploadToken = auth.uploadToken(qiniuOssProperties.getBucketName(), fileUrl);
+            // 上传文件
+            getUploadManager().put(inputStream, fileUrl, uploadToken, null, null);
+
             return uploadResponse;
         } catch (Exception e) {
             log.error("【文件上传异常】：originalFilename：{}，{}", originalFilename, e);

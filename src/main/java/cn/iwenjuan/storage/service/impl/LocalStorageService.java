@@ -24,12 +24,7 @@ public class LocalStorageService extends AbstractStorageService {
     }
 
     @Override
-    public UploadResponse upload(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
-
-        // 判断文件是否允许上传
-        allowedToUpload(originalFilename);
-        // 判断文件大小
-        exceedMaxSize(fileSize);
+    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
 
         OutputStream outputStream = null;
         try {

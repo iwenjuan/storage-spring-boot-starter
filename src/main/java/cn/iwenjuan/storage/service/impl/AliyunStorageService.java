@@ -28,16 +28,12 @@ public class AliyunStorageService extends AbstractStorageService {
     }
 
     @Override
-    public UploadResponse upload(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
+    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
 
-        // 判断文件是否允许上传
-        allowedToUpload(originalFilename);
-        // 判断文件大小
-        exceedMaxSize(fileSize);
         try {
             String path = aliyunOssProperties.getPath();
             String fileUrl = getFileUrl(originalFilename, md5, path);
-            ossClient.putObject(aliyunOssProperties.getBucketName(), fileUrl, inputStream);
+
             UploadResponse response = new UploadResponse()
                     .setPlatform(getPlatformName())
                     .setFileName(originalFilename)
@@ -46,6 +42,17 @@ public class AliyunStorageService extends AbstractStorageService {
                     .setPath(path)
                     .setMd5(md5)
                     .setUploadTime(DateUtils.now());
+
+            try {
+                OSSObject ossObject = ossClient.getObject(aliyunOssProperties.getBucketName(), fileUrl);
+                if (ossObject != null) {
+                    return response;
+                }
+            } catch (Exception e) {
+
+            }
+
+            ossClient.putObject(aliyunOssProperties.getBucketName(), fileUrl, inputStream);
             return response;
         } catch (Exception e) {
             log.error("【文件上传异常】：originalFilename：{}，{}", originalFilename, e);

@@ -58,12 +58,7 @@ public abstract class AbstractStorageService implements IStorageService {
             throw new FileUploadException(StorageErrorCode.FILE_IS_EMPTY);
         }
         String originalFilename = multipartFile.getOriginalFilename();
-        // 判断文件是否允许上传
-        allowedToUpload(originalFilename);
-
         long fileSize = multipartFile.getSize();
-        // 判断文件大小
-        exceedMaxSize(fileSize);
 
         InputStream inputStream;
         try {
@@ -104,6 +99,17 @@ public abstract class AbstractStorageService implements IStorageService {
         } catch (Exception e) {
             throw new FileUploadException(StorageErrorCode.FILE_UPLOAD_ERROR_CODE);
         }
+    }
+
+    @Override
+    public UploadResponse upload(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
+
+        // 判断文件是否允许上传
+        allowedToUpload(originalFilename);
+        // 判断文件大小
+        exceedMaxSize(fileSize);
+
+        return uploadForInputStream(inputStream, originalFilename, md5, fileSize);
     }
 
     @Override
@@ -234,6 +240,17 @@ public abstract class AbstractStorageService implements IStorageService {
             log.error("检测到【{}】存储平台，但未配置相关配置或相关配置不全，请检查配置：{}", platform, properties);
         }
     }
+
+    /**
+     * 上传文件
+     * @param inputStream
+     * @param originalFilename
+     * @param md5
+     * @param fileSize
+     * @return
+     * @throws Exception
+     */
+    protected abstract UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception;
 
     /**
      * 获取文件流

@@ -26,7 +26,7 @@ public class FastDfsStorageService extends AbstractStorageService {
     }
 
     @Override
-    public UploadResponse upload(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
+    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
 
         try {
             String extName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
