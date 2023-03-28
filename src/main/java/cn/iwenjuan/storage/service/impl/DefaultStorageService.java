@@ -40,4 +40,33 @@ public class DefaultStorageService extends AbstractStorageService {
         throw new FileDownloadException(StorageErrorCode.CONFIG_ERROR);
     }
 
+    /**
+     * 打印错误日志
+     */
+    private void printErrorConfigLog() {
+        StorageProperties.PlatformType platform = storageProperties.getPlatform();
+        if (platform == null) {
+            log.error("未检测到存储平台，请检查配置：{}", storageProperties);
+        } else {
+            Object properties = storageProperties.getLocal();
+            switch (platform) {
+                case minio:
+                    properties = storageProperties.getMinio();
+                    break;
+                case fastdfs:
+                    properties = storageProperties.getFastdfs();
+                    break;
+                case aliyun:
+                    properties = storageProperties.getAliyun();
+                    break;
+                case qiniu:
+                    properties = storageProperties.getQiniu();
+                    break;
+                default:
+                    break;
+            }
+            log.error("检测到【{}】存储平台，但未配置相关配置或相关配置不全，请检查配置：{}", platform, properties);
+        }
+    }
+
 }

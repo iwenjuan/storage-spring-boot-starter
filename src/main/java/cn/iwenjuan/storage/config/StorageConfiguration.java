@@ -15,6 +15,7 @@ import com.qiniu.util.Auth;
 import io.minio.MinioClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,6 +36,7 @@ public class StorageConfiguration {
     }
 
     @Bean
+    @ConfigurationProperties("spring.storage")
     public StorageProperties storageConfig() {
         return new StorageProperties();
     }

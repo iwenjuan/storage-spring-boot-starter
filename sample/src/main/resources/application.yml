@@ -16,6 +16,8 @@ spring:
     local:
       # 本地存储路径
       path: /data/files
+      # 归类
+      classify: day
     # minio配置
     minio:
       # minio地址
@@ -28,6 +30,8 @@ spring:
       bucketName: demo
       # minio存储桶下的路径
       path: /files
+      # 归类
+      classify: day
     # fastdfs配置
     fastdfs:
       # 读取时间
@@ -49,8 +53,12 @@ spring:
       bucket-name: lidan-oss-demo
       # 存储桶下的路径
       path: /files
+      # 归类
+      classify: day
     # 七牛云配置
     qiniu:
+      # 访问七牛云的域名
+      domain: http://rs651bzo2.hd-bkt.clouddn.com
       # accessKey
       access-key: Hhd3U4T3KHJXFyiJetAgdKsQ9MWkIomPn8knyJkq
       # secretKey
@@ -59,5 +67,5 @@ spring:
       bucket-name: lidan-oss-demo
       # 存储桶下的路径
       path: /files
-      # 访问七牛云的域名
-      domain: http://rs651bzo2.hd-bkt.clouddn.com
+      # 归类
+      classify: day

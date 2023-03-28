@@ -32,8 +32,8 @@ public class AliyunStorageService extends AbstractStorageService {
     public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
 
         try {
-            String path = aliyunOssProperties.getPath();
-            String fileUrl = getFileUrl(originalFilename, md5, path);
+            String path = getPath();
+            String fileUrl = getFileUrl(originalFilename, md5);
 
             UploadResponse response = new UploadResponse()
                     .setPlatform(getPlatformName())
@@ -44,8 +44,12 @@ public class AliyunStorageService extends AbstractStorageService {
                     .setMd5(md5)
                     .setUploadTime(DateUtils.now());
 
+            String key = fileUrl;
+            if (key.startsWith(SLASH)) {
+                key = key.substring(1);
+            }
             try {
-                OSSObject ossObject = ossClient.getObject(aliyunOssProperties.getBucketName(), fileUrl);
+                OSSObject ossObject = ossClient.getObject(aliyunOssProperties.getBucketName(), key);
                 if (ossObject != null) {
                     return response;
                 }
@@ -53,7 +57,7 @@ public class AliyunStorageService extends AbstractStorageService {
 
             }
 
-            ossClient.putObject(aliyunOssProperties.getBucketName(), fileUrl, inputStream);
+            ossClient.putObject(aliyunOssProperties.getBucketName(), key, inputStream);
             return response;
         } catch (Exception e) {
             log.error("【文件上传异常】：originalFilename：{}，{}", originalFilename, e);
@@ -63,14 +67,21 @@ public class AliyunStorageService extends AbstractStorageService {
 
     @Override
     public void delete(String objectName) {
-        ossClient.deleteObject(aliyunOssProperties.getBucketName(), objectName);
+        String key = objectName;
+        if (key.startsWith(SLASH)) {
+            key = key.substring(1);
+        }
+        ossClient.deleteObject(aliyunOssProperties.getBucketName(), key);
     }
 
     @Override
     protected InputStream getInputStream(String objectName) throws Exception {
-
+        String key = objectName;
+        if (key.startsWith(SLASH)) {
+            key = key.substring(1);
+        }
         try {
-            OSSObject ossObject = ossClient.getObject(aliyunOssProperties.getBucketName(), objectName);
+            OSSObject ossObject = ossClient.getObject(aliyunOssProperties.getBucketName(), key);
             return ossObject.getObjectContent();
         } catch (Exception e) {
             log.error("【文件下载异常】：objectName：{}，{}", objectName, e);

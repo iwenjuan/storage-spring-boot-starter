@@ -82,8 +82,8 @@ public class QiniuStorageService extends AbstractStorageService {
     public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
 
         try {
-            String path = qiniuOssProperties.getPath();
-            String fileUrl = getFileUrl(originalFilename, md5, path);
+            String path = getPath();
+            String fileUrl = getFileUrl(originalFilename, md5);
             UploadResponse uploadResponse = new UploadResponse()
                     .setPlatform(getPlatformName())
                     .setFileName(originalFilename)
@@ -93,19 +93,14 @@ public class QiniuStorageService extends AbstractStorageService {
                     .setMd5(md5)
                     .setUploadTime(DateUtils.now());
 
-            try {
-                String privateDownloadUrl = auth.privateDownloadUrl(qiniuOssProperties.getDomain().concat(fileUrl));
-                if (StringUtils.isNotBlank(privateDownloadUrl)) {
-                    return uploadResponse;
-                }
-            } catch (Exception e) {
-
+            String key = fileUrl;
+            if (key.startsWith(SLASH)) {
+                key = key.substring(1);
             }
-
             // 生成上传凭证，然后准备上传
-            String uploadToken = auth.uploadToken(qiniuOssProperties.getBucketName(), fileUrl);
+            String uploadToken = auth.uploadToken(qiniuOssProperties.getBucketName(), key);
             // 上传文件
-            getUploadManager().put(inputStream, fileUrl, uploadToken, null, null);
+            getUploadManager().put(inputStream, key, uploadToken, null, null);
 
             return uploadResponse;
         } catch (Exception e) {
@@ -116,8 +111,12 @@ public class QiniuStorageService extends AbstractStorageService {
 
     @Override
     public void delete(String objectName) {
+        String key = objectName;
+        if (key.startsWith(SLASH)) {
+            key = key.substring(1);
+        }
         try {
-            getBucketManager().delete(qiniuOssProperties.getBucketName(), objectName);
+            getBucketManager().delete(qiniuOssProperties.getBucketName(), key);
         } catch (QiniuException e) {
             log.error("【删除文件失败】：objectName：{}，{}", objectName, e);
         }
@@ -129,8 +128,16 @@ public class QiniuStorageService extends AbstractStorageService {
             log.error("检测到七牛云OSS存储平台，但未配置七牛云访问域名，无法下载文件：{}", qiniuOssProperties);
             throw new FileDownloadException(StorageErrorCode.CONFIG_ERROR);
         }
+        String key = objectName;
+        if (key.startsWith(SLASH)) {
+            key = key.substring(1);
+        }
+        String domain = qiniuOssProperties.getDomain();
+        if (!domain.endsWith(SLASH)) {
+            domain = domain.concat(SLASH);
+        }
         try {
-            String privateDownloadUrl = auth.privateDownloadUrl(qiniuOssProperties.getDomain().concat(objectName));
+            String privateDownloadUrl = auth.privateDownloadUrl(domain.concat(key));
             byte[] bytes = HttpUtils.getWithHeaders(privateDownloadUrl, null, null, byte[].class);
             outputStream.write(bytes);
         } catch (IOException e) {
@@ -141,8 +148,16 @@ public class QiniuStorageService extends AbstractStorageService {
 
     @Override
     protected InputStream getInputStream(String objectName) throws Exception {
+        String key = objectName;
+        if (key.startsWith(SLASH)) {
+            key = key.substring(1);
+        }
+        String domain = qiniuOssProperties.getDomain();
+        if (!domain.endsWith(SLASH)) {
+            domain = domain.concat(SLASH);
+        }
         try {
-            String privateDownloadUrl = auth.privateDownloadUrl(qiniuOssProperties.getDomain().concat(objectName));
+            String privateDownloadUrl = auth.privateDownloadUrl(domain.concat(key));
             byte[] bytes = HttpUtils.getWithHeaders(privateDownloadUrl, null, null, byte[].class);
             return new ByteArrayInputStream(bytes);
         } catch (Exception e) {

@@ -29,9 +29,9 @@ public class LocalStorageService extends AbstractStorageService {
 
         OutputStream outputStream = null;
         try {
-            String path = localProperties.getPath().concat(DateUtils.format(DateUtils.now(), "yyyyMM")).concat("/");
+            String path = getPath();
             mkdir(path);
-            String fileUrl = getFileUrl(originalFilename, md5, path);
+            String fileUrl = getFileUrl(originalFilename, md5);
 
             UploadResponse response = new UploadResponse()
                     .setPlatform(getPlatformName())
@@ -78,7 +78,7 @@ public class LocalStorageService extends AbstractStorageService {
     private void mkdir(String path) {
         File file = new File(path);
         if (!file.exists()) {
-            file.mkdir();
+            file.mkdirs();
         }
     }
 

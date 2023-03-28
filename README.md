@@ -14,6 +14,18 @@
     <version>1.0.1-SNAPSHOT</version>
 </dependency>
 ~~~
+### 启动类添加@EnableStorage注解
+~~~
+@SpringBootApplication
+@EnableStorage
+public class SampleApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SampleApplication.class, args);
+    }
+
+}
+~~~
 ### application.yml配置示例
 ~~~
 spring:
@@ -31,18 +43,22 @@ spring:
     local:
       # 本地存储路径
       path: /data/files
+      # 归类，支持按年（year）、按月（month）、按天（day）
+      classify: day
     # minio配置
     minio:
       # minio地址
       endpoint: http://minio.dev:9000
       # minio账号
-      accessKey: minio
+      accessKey: minio账号
       # minio秘钥
-      secretKey: nji9VFR$
+      secretKey: minio秘钥
       # minio存储桶名
       bucketName: demo
       # minio存储桶下的路径
       path: /files
+      # 归类，支持按年（year）、按月（month）、按天（day）
+      classify: day
     # fastdfs配置
     fastdfs:
       # 读取时间
@@ -64,8 +80,12 @@ spring:
       bucket-name: 存储桶名
       # 存储桶下的路径
       path: /files
+      # 归类，支持按年（year）、按月（month）、按天（day）
+      classify: day
     # 七牛云配置
     qiniu:
+      # 访问七牛云的域名，不配置无法实现下载功能
+      domain: http://xxx.com
       # accessKey
       access-key: 七牛云平台的AccessKey
       # secretKey
@@ -74,8 +94,8 @@ spring:
       bucket-name: 存储桶名
       # 存储桶下的路径
       path: /files
-      # 访问七牛云的域名，不配置无法实现下载功能
-      domain: http://xxx.com
+      # 归类，支持按年（year）、按月（month）、按天（day）
+      classify: day
 ~~~
 ### 引入IStorageService类
 ~~~

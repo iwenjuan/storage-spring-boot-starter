@@ -1,8 +1,8 @@
 package cn.iwenjuan.storage.config;
 
+import cn.iwenjuan.storage.utils.DateUtils;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,11 +12,8 @@ import java.util.List;
  * @date 2023/3/24 11:33
  */
 @Data
-@ConfigurationProperties("spring.storage")
 @Slf4j
 public class StorageProperties {
-
-    public static final String SLASH = "/";
 
     /**
      * 允许上传文件最大大小，单位kb，默认10M
@@ -61,16 +58,11 @@ public class StorageProperties {
          * 本地存储路径
          */
         private String path = "/data/files";
+        /**
+         * 归类
+         */
+        private Classify classify = Classify.non;
 
-        public String getPath() {
-            if (path == null || "".equals(path)) {
-                path = SLASH;
-            }
-            if (!path.endsWith(SLASH)) {
-                path = path.concat(SLASH);
-            }
-            return path;
-        }
     }
 
     @Data
@@ -95,19 +87,11 @@ public class StorageProperties {
          * minio存储桶下的路径
          */
         private String path;
+        /**
+         * 归类
+         */
+        private Classify classify = Classify.non;
 
-        public String getPath() {
-            if (path == null) {
-                path = "";
-            }
-            if (!path.endsWith(SLASH)) {
-                path = path.concat(SLASH);
-            }
-            if (SLASH.equals(path)) {
-                path = "";
-            }
-            return path;
-        }
     }
 
     @Data
@@ -150,26 +134,20 @@ public class StorageProperties {
          * 存储桶下的路径
          */
         private String path;
+        /**
+         * 归类
+         */
+        private Classify classify = Classify.non;
 
-        public String getPath() {
-            if (path == null) {
-                path = "";
-            }
-            if (!path.endsWith(SLASH)) {
-                path = path.concat(SLASH);
-            }
-            if (path.startsWith(SLASH)) {
-                path = path.substring(1);
-            }
-            if (SLASH.equals(path)) {
-                path = "";
-            }
-            return path;
-        }
     }
 
     @Data
     public static class QiniuOssProperties {
+
+        /**
+         * 访问七牛云的域名
+         */
+        public String domain;
         /**
          * OSS 节点accessKey
          */
@@ -187,24 +165,31 @@ public class StorageProperties {
          */
         private String path;
         /**
-         * 访问七牛云的域名
+         * 归类
          */
-        public String domain;
+        private Classify classify = Classify.non;
 
-        public String getPath() {
-            if (path == null) {
-                path = "";
+    }
+
+    public enum Classify {
+
+        non,
+        year,
+        month,
+        day;
+
+        public String classifyPath() {
+            switch (this) {
+                case year:
+                    return DateUtils.format(DateUtils.now(), "yyyy");
+                case month:
+                    return DateUtils.format(DateUtils.now(), "yyyy/MM");
+                case day:
+                    return DateUtils.format(DateUtils.now(), "yyyy/MM/dd");
+                case non:
+                default:
+                    return "";
             }
-            if (!path.endsWith(SLASH)) {
-                path = path.concat(SLASH);
-            }
-            if (path.startsWith(SLASH)) {
-                path = path.substring(1);
-            }
-            if (SLASH.equals(path)) {
-                path = "";
-            }
-            return path;
         }
     }
 

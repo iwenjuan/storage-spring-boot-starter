@@ -21,7 +21,9 @@ import java.io.*;
 @Slf4j
 public abstract class AbstractStorageService implements IStorageService {
 
-    private StorageProperties storageProperties;
+    protected static final String SLASH = "/";
+
+    protected StorageProperties storageProperties;
 
     public AbstractStorageService(StorageProperties storageProperties) {
         this.storageProperties = storageProperties;
@@ -182,16 +184,57 @@ public abstract class AbstractStorageService implements IStorageService {
      *
      * @param originalFilename
      * @param md5
-     * @param path
      * @return
      */
-    protected String getFileUrl(String originalFilename, String md5, String path) {
-        if (path == null) {
-            path = "";
-        }
+    protected String getFileUrl(String originalFilename, String md5) {
         String suffix = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
         String fileName = StringUtils.isBlank(md5) ? IdUtils.randomUUID().concat(".").concat(suffix) : md5.concat(".").concat(suffix);
-        return path.concat(fileName);
+        return getPath().concat(fileName);
+    }
+
+    /**
+     * 获取存储路径
+     * @return
+     */
+    protected String getPath() {
+        StorageProperties.PlatformType platform = storageProperties.getPlatform();
+        switch (platform) {
+            case local:
+                StorageProperties.LocalProperties local = storageProperties.getLocal();
+                return getPath(local.getPath(), local.getClassify());
+            case minio:
+                StorageProperties.MinioProperties minio = storageProperties.getMinio();
+                return getPath(minio.getPath(), minio.getClassify());
+            case aliyun:
+                StorageProperties.AliyunOssProperties aliyun = storageProperties.getAliyun();
+                return getPath(aliyun.getPath(), aliyun.getClassify());
+            case qiniu:
+                StorageProperties.QiniuOssProperties qiniu = storageProperties.getQiniu();
+                return getPath(qiniu.getPath(), qiniu.getClassify());
+            case fastdfs:
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * 获取存储路径
+     * @param path
+     * @param classify
+     * @return
+     */
+    protected String getPath(String path, StorageProperties.Classify classify) {
+        if (path == null || "".equals(path)) {
+            path = SLASH;
+        }
+        if (!path.endsWith(SLASH)) {
+            path = path.concat(SLASH);
+        }
+        path = path.concat(classify.classifyPath());
+        if (!path.endsWith(SLASH)) {
+            path = path.concat(SLASH);
+        }
+        return path;
     }
 
     /**
@@ -200,35 +243,6 @@ public abstract class AbstractStorageService implements IStorageService {
      */
     protected String getPlatformName() {
         return storageProperties.getPlatform().name();
-    }
-
-    /**
-     * 打印错误日志
-     */
-    protected void printErrorConfigLog() {
-        StorageProperties.PlatformType platform = storageProperties.getPlatform();
-        if (platform == null) {
-            log.error("未检测到存储平台，请检查配置：{}", storageProperties);
-        } else {
-            Object properties = storageProperties.getLocal();
-            switch (platform) {
-                case minio:
-                    properties = storageProperties.getMinio();
-                    break;
-                case fastdfs:
-                    properties = storageProperties.getFastdfs();
-                    break;
-                case aliyun:
-                    properties = storageProperties.getAliyun();
-                    break;
-                case qiniu:
-                    properties = storageProperties.getQiniu();
-                    break;
-                default:
-                    break;
-            }
-            log.error("检测到【{}】存储平台，但未配置相关配置或相关配置不全，请检查配置：{}", platform, properties);
-        }
     }
 
     /**

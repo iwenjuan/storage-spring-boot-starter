@@ -33,8 +33,8 @@ public class MinioStorageService extends AbstractStorageService {
 
         try {
 
-            String path = minioProperties.getPath();
-            String fileUrl = getFileUrl(originalFilename, md5, path);
+            String path = getPath();
+            String fileUrl = getFileUrl(originalFilename, md5);
 
             UploadResponse response = new UploadResponse()
                     .setPlatform(getPlatformName())
