@@ -30,7 +30,7 @@ import java.util.List;
 @Slf4j
 public class StorageConfiguration {
 
-    @Bean
+    @Bean(name = "storageSpringApplicationContext")
     public SpringApplicationContext springApplicationContext() {
         return new SpringApplicationContext();
     }
