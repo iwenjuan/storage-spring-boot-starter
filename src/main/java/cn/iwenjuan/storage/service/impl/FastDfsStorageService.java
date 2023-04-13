@@ -28,7 +28,7 @@ public class FastDfsStorageService extends AbstractStorageService {
     }
 
     @Override
-    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
+    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String uid, long fileSize) throws Exception {
 
         try {
             String extName = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
@@ -40,7 +40,7 @@ public class FastDfsStorageService extends AbstractStorageService {
                     .setFileSize(fileSize)
                     .setFileUrl("/".concat(fullPath))
                     .setPath("")
-                    .setMd5(md5)
+                    .setUid(uid)
                     .setUploadTime(DateUtils.now());
             return response;
         } catch (Exception e) {

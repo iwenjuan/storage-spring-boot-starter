@@ -35,18 +35,18 @@ public abstract class AbstractStorageService implements IStorageService {
         if (multipartFile == null || multipartFile.isEmpty()) {
             throw new FileUploadException(StorageErrorCode.FILE_IS_EMPTY);
         }
-        String md5;
+        String uid;
         try {
-            md5 = Md5Utils.md5(multipartFile.getInputStream());
+            uid = Md5Utils.md5(multipartFile.getInputStream());
         } catch (IOException e) {
             log.error("【文件上传异常】：originalFilename：{}，{}", multipartFile.getOriginalFilename(), e);
             throw new FileUploadException(StorageErrorCode.FILE_UPLOAD_ERROR_CODE);
         }
-        return upload(multipartFile, md5);
+        return upload(multipartFile, uid);
     }
 
     @Override
-    public UploadResponse upload(MultipartFile multipartFile, String md5) {
+    public UploadResponse upload(MultipartFile multipartFile, String uid) {
         if (multipartFile == null || multipartFile.isEmpty()) {
             throw new FileUploadException(StorageErrorCode.FILE_IS_EMPTY);
         }
@@ -56,7 +56,7 @@ public abstract class AbstractStorageService implements IStorageService {
         InputStream inputStream;
         try {
             inputStream = multipartFile.getInputStream();
-            return upload(inputStream, originalFilename, md5, fileSize);
+            return upload(inputStream, originalFilename, uid, fileSize);
         } catch (Exception e) {
             throw new FileUploadException(StorageErrorCode.FILE_UPLOAD_ERROR_CODE);
         }
@@ -68,18 +68,18 @@ public abstract class AbstractStorageService implements IStorageService {
         if (file == null || !file.exists()) {
             throw new FileUploadException(StorageErrorCode.FILE_IS_EMPTY);
         }
-        String md5;
+        String uid;
         try {
-            md5 = Md5Utils.md5(new FileInputStream(file));
+            uid = Md5Utils.md5(new FileInputStream(file));
         } catch (IOException e) {
             log.error("【文件上传异常】：filename：{}，{}", file.getName(), e);
             throw new FileUploadException(StorageErrorCode.FILE_UPLOAD_ERROR_CODE);
         }
-        return upload(file, md5);
+        return upload(file, uid);
     }
 
     @Override
-    public UploadResponse upload(File file, String md5) {
+    public UploadResponse upload(File file, String uid) {
         if (file == null || !file.exists()) {
             throw new FileUploadException(StorageErrorCode.FILE_IS_EMPTY);
         }
@@ -88,21 +88,21 @@ public abstract class AbstractStorageService implements IStorageService {
         InputStream inputStream;
         try {
             inputStream = new FileInputStream(file);
-            return upload(inputStream, originalFilename, md5, fileSize);
+            return upload(inputStream, originalFilename, uid, fileSize);
         } catch (Exception e) {
             throw new FileUploadException(StorageErrorCode.FILE_UPLOAD_ERROR_CODE);
         }
     }
 
     @Override
-    public UploadResponse upload(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
+    public UploadResponse upload(InputStream inputStream, String originalFilename, String uid, long fileSize) throws Exception {
 
         // 判断文件是否允许上传
         allowedToUpload(originalFilename);
         // 判断文件大小
         exceedMaxSize(fileSize);
 
-        return uploadForInputStream(inputStream, originalFilename, md5, fileSize);
+        return uploadForInputStream(inputStream, originalFilename, uid, fileSize);
     }
 
     @Override
@@ -183,12 +183,12 @@ public abstract class AbstractStorageService implements IStorageService {
      * 获取文件地址
      *
      * @param originalFilename
-     * @param md5
+     * @param uid
      * @return
      */
-    protected String getFileUrl(String originalFilename, String md5) {
+    protected String getFileUrl(String originalFilename, String uid) {
         String suffix = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
-        String fileName = StringUtils.isBlank(md5) ? IdUtils.randomUUID().concat(".").concat(suffix) : md5.concat(".").concat(suffix);
+        String fileName = StringUtils.isBlank(uid) ? IdUtils.randomUUID().concat(".").concat(suffix) : uid.concat(".").concat(suffix);
         return getPath().concat(fileName);
     }
 
@@ -249,12 +249,12 @@ public abstract class AbstractStorageService implements IStorageService {
      * 上传文件
      * @param inputStream
      * @param originalFilename
-     * @param md5
+     * @param uid
      * @param fileSize
      * @return
      * @throws Exception
      */
-    protected abstract UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception;
+    protected abstract UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String uid, long fileSize) throws Exception;
 
     /**
      * 获取文件流

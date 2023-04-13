@@ -25,13 +25,13 @@ public class LocalStorageService extends AbstractStorageService {
     }
 
     @Override
-    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
+    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String uid, long fileSize) throws Exception {
 
         OutputStream outputStream = null;
         try {
             String path = getPath();
             mkdir(path);
-            String fileUrl = getFileUrl(originalFilename, md5);
+            String fileUrl = getFileUrl(originalFilename, uid);
 
             UploadResponse response = new UploadResponse()
                     .setPlatform(getPlatformName())
@@ -39,7 +39,7 @@ public class LocalStorageService extends AbstractStorageService {
                     .setFileSize(fileSize)
                     .setFileUrl(fileUrl)
                     .setPath(path)
-                    .setMd5(md5)
+                    .setUid(uid)
                     .setUploadTime(DateUtils.now());
 
             File file = new File(fileUrl);

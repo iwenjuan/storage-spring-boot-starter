@@ -25,10 +25,10 @@ public interface IStorageService {
      * 文件上传
      *
      * @param multipartFile
-     * @param md5
+     * @param uid
      * @return
      */
-    UploadResponse upload(MultipartFile multipartFile, String md5);
+    UploadResponse upload(MultipartFile multipartFile, String uid);
 
     /**
      * 文件上传
@@ -42,22 +42,22 @@ public interface IStorageService {
      * 文件上传
      *
      * @param file
-     * @param md5
+     * @param uid
      * @return
      */
-    UploadResponse upload(File file, String md5);
+    UploadResponse upload(File file, String uid);
 
     /**
      * 文件上传
      *
      * @param inputStream
      * @param originalFilename
-     * @param md5
+     * @param uid
      * @param fileSize
      * @return
      * @throws Exception
      */
-    UploadResponse upload(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception;
+    UploadResponse upload(InputStream inputStream, String originalFilename, String uid, long fileSize) throws Exception;
 
     /**
      * 判断文件是否允许上传

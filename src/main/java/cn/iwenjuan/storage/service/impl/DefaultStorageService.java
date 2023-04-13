@@ -23,7 +23,7 @@ public class DefaultStorageService extends AbstractStorageService {
     }
 
     @Override
-    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
+    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String uid, long fileSize) throws Exception {
         printErrorConfigLog();
         throw new FileUploadException(StorageErrorCode.CONFIG_ERROR);
     }

@@ -19,9 +19,9 @@ public class UploadResponse implements Serializable {
     private static final long serialVersionUID = 5721028760255298291L;
 
     /**
-     * 文件MD5值
+     * 文件唯一标识，默认为文件的MD5值
      */
-    private String md5;
+    private String uid;
     /**
      * 存储平台
      */

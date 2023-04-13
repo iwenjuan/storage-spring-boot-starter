@@ -79,18 +79,18 @@ public class QiniuStorageService extends AbstractStorageService {
     }
 
     @Override
-    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String md5, long fileSize) throws Exception {
+    public UploadResponse uploadForInputStream(InputStream inputStream, String originalFilename, String uid, long fileSize) throws Exception {
 
         try {
             String path = getPath();
-            String fileUrl = getFileUrl(originalFilename, md5);
+            String fileUrl = getFileUrl(originalFilename, uid);
             UploadResponse uploadResponse = new UploadResponse()
                     .setPlatform(getPlatformName())
                     .setFileName(originalFilename)
                     .setFileSize(fileSize)
                     .setFileUrl(fileUrl)
                     .setPath(path)
-                    .setMd5(md5)
+                    .setUid(uid)
                     .setUploadTime(DateUtils.now());
 
             String key = fileUrl;
